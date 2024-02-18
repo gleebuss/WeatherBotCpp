@@ -1,7 +1,7 @@
 #include <cpr/cpr.h>
 
 #include <cmath>
-#include <nlohmann/json.hpp>
+#include <json.hpp>
 #include <vector>
 
 /// \class Weather_Client

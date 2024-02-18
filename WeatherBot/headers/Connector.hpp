@@ -1,6 +1,5 @@
 #include <memory>
-
-#include "../dependencies/sqlite_modern_cpp.h"
+#include <sqlite_modern_cpp.h>
 
 /// \class Connector
 /// \brief Класс, отвечающий за соеднинение с бд.

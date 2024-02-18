@@ -21,7 +21,6 @@ else()
         set(CMAKE_TOOLCHAIN_FILE ${FILE_CONTENTS}/scripts/buildsystems/vcpkg.cmake)
     endif()
 endif()
-
 set(CMAKE_BUILD_TYPE "Release")
 set(CMAKE_CONFIGURATION_TYPES ${CMAKE_BUILD_TYPE} CACHE STRING "" FORCE)
 
@@ -30,9 +29,9 @@ project(WeatherBot)
 set(CMAKE_CXX_STANDARD 20)
 set(path ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/${TgbotLib})
 
-set(DEP_DIR "WeatherBot/dependencies")
-set(SOURCE_DIR "WeatherBot/src")
-set(HEADER_DIR "WeatherBot/headers")
+set(DEP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/WeatherBot/dependencies)
+set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/WeatherBot/src)
+set(HEADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/WeatherBot/headers)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_SOURCE_DIR}/bin.rel)
 file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS "${SOURCE_DIR}/*.cpp")
 
@@ -40,7 +39,8 @@ find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(Boost COMPONENTS system REQUIRED)
 find_package(CURL)
-find_package(cpr CONFIG REQUIRED)
+find_package(cpr REQUIRED)
+find_package(unofficial-sqlite3 CONFIG REQUIRED)
 
 find_package(Doxygen REQUIRED)
 
@@ -65,13 +65,12 @@ include_directories(include ${OPENSSL_INCLUDE_DIR} ${Boost_INCLUDE_DIR} ${DEP_DI
 
 add_executable(WeatherBot WeatherBot/main.cpp)
 target_sources(WeatherBot PUBLIC ${PROJECT_SOURCES})
-target_include_directories(WeatherBot PUBLIC HEADER_DIR DEP_DIR)
-target_link_libraries(WeatherBot ${path} cpr::cpr ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${CURL_LIBRARIES} sqlite3)
+target_include_directories(WeatherBot PUBLIC ${HEADER_DIR} ${DEP_DIR})
+target_link_libraries(WeatherBot cpr::cpr ${path} ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${CURL_LIBRARIES} unofficial::sqlite3::sqlite3)
 add_custom_command(
   TARGET ${PROJECT_NAME} POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy 
     ${CMAKE_CURRENT_SOURCE_DIR}/res/.env
     $<TARGET_FILE_DIR:${PROJECT_NAME}>)
 
-install(TARGETS WeatherBot DESTINATION ${CMAKE_INSTALL_PREFIX}/WeatherBot)    
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/res/.env DESTINATION ${CMAKE_INSTALL_PREFIX}/WeatherBot)
+install(DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE} DESTINATION ${CMAKE_INSTALL_PREFIX})   
